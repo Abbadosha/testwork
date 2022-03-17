@@ -14,6 +14,7 @@ app = FastAPI()
 
 
 def get_db_session():
+    """getting and mantaining DB session"""
     db=database_cfg.Session_local
     try:
         yield db
@@ -21,6 +22,7 @@ def get_db_session():
         db.close()
 
 def get_slice(seq, offset):
+    """making slise for pagination"""
     for start in range(0, len(seq), offset):
         yield seq[start:start+offset]
 
@@ -28,6 +30,7 @@ def get_slice(seq, offset):
 
 @app.post('/users', status_code=status.HTTP_201_CREATED)
 def create_user(user:User, db: Session= Depends(get_db_session)):
+    """Creating user in table user"""
     new_user = DB_models.User_tbl(
         email=user.email,
         usr_password=user.password
@@ -39,6 +42,7 @@ def create_user(user:User, db: Session= Depends(get_db_session)):
 
 @app.post('/articles',  status_code=status.HTTP_201_CREATED)
 def create_article(article:Article, db: Session= Depends(get_db_session)):
+    """Creating article"""
     new_article= DB_models.Article_tbl(
         user_id=article.user_id,
         article_name=article.article_name,
@@ -51,6 +55,7 @@ def create_article(article:Article, db: Session= Depends(get_db_session)):
 
 @app.post('/videos',  status_code=status.HTTP_201_CREATED)
 def create_video(video:Video, db: Session= Depends(get_db_session)):
+    """Creating video"""
     new_video= DB_models.Video_tbl(
         user_id=video.user_id,
         video_name=video.video_name,
@@ -63,6 +68,7 @@ def create_video(video:Video, db: Session= Depends(get_db_session)):
 
 @app.post('/comments',  status_code=status.HTTP_201_CREATED)
 def create_comments(comments:Comments, db: Session= Depends(get_db_session)):
+    """Creating video"""
     new_comments= DB_models.Comments(
         user_id=comments.user_id,
         article_id=comments.article_id,
@@ -78,21 +84,25 @@ def create_comments(comments:Comments, db: Session= Depends(get_db_session)):
 
 @app.get('/users/{user_id}', status_code=status.HTTP_200_OK)
 def get_one_user(user_id:int, db: Session= Depends(get_db_session)):
+    """Getting user data"""
     resp = db.query(DB_models.User_tbl).filter(DB_models.User_tbl.user_id==user_id).first()
     return resp
 
 @app.get('/articles/{article_id}', status_code=status.HTTP_200_OK)
 def get_one_article(article_id:int, db: Session= Depends(get_db_session)):
+    """Getting articles data"""
     resp = db.query(DB_models.Article_tbl).filter(DB_models.Article_tbl.article_id==article_id).first()
     return resp
 
 @app.get('/videos/{video_id}', status_code=status.HTTP_200_OK)
 def get_one_video(video_id:int, db: Session= Depends(get_db_session)):
+    """Getting videos data"""
     resp = db.query(DB_models.Video_tbl).filter(DB_models.Video_tbl.video_id==video_id).first()
     return resp
 
 @app.get('/comments/{comment_id}', status_code=status.HTTP_200_OK)
 def get_one_comment(comment_id:int, db: Session= Depends(get_db_session)):
+    """Getting comments data"""
     resp = db.query(DB_models.Comments).filter(DB_models.Comments.comment_id==comment_id).first()
     return resp
 
@@ -100,6 +110,7 @@ def get_one_comment(comment_id:int, db: Session= Depends(get_db_session)):
 
 @app.put('/users/{user_id}', status_code=status.HTTP_200_OK)
 def update_one_user(user_id:int, user:User, db: Session= Depends(get_db_session)):
+    """Updating users data"""
     user_to_upd = db.query(DB_models.User_tbl).filter(DB_models.User_tbl.user_id==user_id).first()
     user_to_upd.email=user.email
     user_to_upd.usr_password=user.password
@@ -109,6 +120,7 @@ def update_one_user(user_id:int, user:User, db: Session= Depends(get_db_session)
 
 @app.put('/articles/{article_id}', status_code=status.HTTP_200_OK)
 def update_one_article(article_id:int, article:Article, db: Session= Depends(get_db_session)):
+    """Updating articles data"""
     article_to_upd = db.query(DB_models.Article_tbl).filter(DB_models.Article_tbl.article_id==article_id).first()
     article_to_upd.user_id=article.user_id
     article_to_upd.article_name=article.article_name
@@ -119,6 +131,7 @@ def update_one_article(article_id:int, article:Article, db: Session= Depends(get
 
 @app.put('/videos/{video_id}', status_code=status.HTTP_200_OK)
 def update_one_video(video_id:int, video:Video, db: Session= Depends(get_db_session)):
+    """Updating videos data"""
     video_to_upd = db.query(DB_models.Video_tbl).filter(DB_models.Video_tbl.video_id==video_id).first()
     video_to_upd.user_id=video.user_id
     video_to_upd.video_name=video.video_name
@@ -129,6 +142,7 @@ def update_one_video(video_id:int, video:Video, db: Session= Depends(get_db_sess
 
 @app.put('/comments/{comment_id}', status_code=status.HTTP_200_OK)
 def update_one_comment(comment_id:int, comment:Comments, db: Session= Depends(get_db_session)):
+    """Updating comments data"""
     comment_to_upd = db.query(DB_models.Comments).filter(DB_models.Comments.comment_id==comment_id).first()
     comment_to_upd.user_id=comment.user_id
     comment_to_upd.article_id =comment.article_id
@@ -142,6 +156,7 @@ def update_one_comment(comment_id:int, comment:Comments, db: Session= Depends(ge
 
 @app.delete('/users/{user_id}', status_code=status.HTTP_200_OK)
 def del_user(user_id:int, db: Session= Depends(get_db_session)):
+    """Deleteng users data"""
     db.query(DB_models.User_tbl).filter(DB_models.User_tbl.user_id == user_id).delete(synchronize_session=False)  # documentation of sqlalchemy
     db.commit()
     return {'done': f'User {user_id} deleted!'}
@@ -149,18 +164,21 @@ def del_user(user_id:int, db: Session= Depends(get_db_session)):
 
 @app.delete('/articles/{article_id}', status_code=status.HTTP_200_OK)
 def del_article(article_id:int,  db: Session= Depends(get_db_session)):
+    """Deleteng articles data"""
     db.query(DB_models.Article_tbl).filter(DB_models.Article_tbl.article_id == article_id).delete(synchronize_session=False)  # documentation of sqlalchemy
     db.commit()
     return {'done': f'Article {article_id} deleted!'}
 
 @app.delete('/videos/{video_id}', status_code=status.HTTP_200_OK)
 def del_video(video_id:int,  db: Session= Depends(get_db_session)):
+    """Deleteng videos data"""
     db.query(DB_models.Video_tbl).filter(DB_models.Video_tbl.video_id == video_id).delete(synchronize_session=False)  # documentation of sqlalchemy
     db.commit()
     return {'done': f'Video {video_id} deleted!'}
 
 @app.delete('/comments/{comment_id}', status_code=status.HTTP_200_OK)
 def del_comment(comment_id:int, db: Session= Depends(get_db_session)):
+    """Deleteng comments data"""
     db.query(DB_models.Comments).filter(DB_models.Comments.comment_id == comment_id).delete(synchronize_session=False)  # documentation of sqlalchemy
     db.commit()
     return {'done': f'Comment {comment_id} deleted!'}
@@ -169,6 +187,7 @@ def del_comment(comment_id:int, db: Session= Depends(get_db_session)):
 
 @app.get('/users')
 def get_all_users(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
+    """Getting paginated users data"""
     db_array = db.query(DB_models.User_tbl).all()
     data_array = [i for i in db_array]
     resp_arr = list(get_slice(data_array, page_size))[page_num-1]
@@ -178,6 +197,7 @@ def get_all_users(page_num: int = 1, page_size: int = 2, db: Session= Depends(ge
 
 @app.get('/articles')
 def get_all_articles(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
+    """Getting articles users data"""
     db_array = db.query(DB_models.Article_tbl).all()
     data_array = [i for i in db_array]
     resp_arr = list(get_slice(data_array, page_size))[page_num-1]
@@ -187,6 +207,7 @@ def get_all_articles(page_num: int = 1, page_size: int = 2, db: Session= Depends
 
 @app.get('/videos')
 def get_all_videos(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
+    """Getting videos users data"""
     db_array = db.query(DB_models.Video_tbl).all()
     data_array = [i for i in db_array]
     resp_arr = list(get_slice(data_array, page_size))[page_num-1]
@@ -196,6 +217,7 @@ def get_all_videos(page_num: int = 1, page_size: int = 2, db: Session= Depends(g
 
 @app.get('/comments')
 def get_all_comments(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
+    """Getting comments users data"""
     db_array = db.query(DB_models.Comments).all()
     data_array = [i for i in db_array]
     resp_arr = list(get_slice(data_array, page_size))[page_num-1]

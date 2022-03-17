@@ -68,7 +68,7 @@ def create_video(video:Video, db: Session= Depends(get_db_session)):
 
 @app.post('/comments',  status_code=status.HTTP_201_CREATED)
 def create_comments(comments:Comments, db: Session= Depends(get_db_session)):
-    """Creating video"""
+    """Creating comments"""
     new_comments= DB_models.Comments(
         user_id=comments.user_id,
         article_id=comments.article_id,

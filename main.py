@@ -27,6 +27,23 @@ def get_slice(seq, offset):
         yield seq[start:start+offset]
 
 
+def get_paginated_data(model: str, page_num: int = 1, page_size: int = 2):
+    db = (get_db_session())
+    if model == 'comments':
+        db_array = db.query(DB_models.Comments).all()
+    elif model == 'users':
+        db_array = db.query(DB_models.User_tbl).all()
+    elif model == 'articles':
+        db_array = db.query(DB_models.Article_tbl).all()
+    elif model == 'videos':
+        db_array = db.query(DB_models.Video_tbl).all()
+    data_array = [i for i in db_array]
+    resp_arr = list(get_slice(data_array, page_size))[page_num-1]
+    len_data = len(data_array)
+    total_pages = math.ceil(len_data/page_size)
+    return{"data": resp_arr, "meta": {"current": page_num, "last_page": total_pages, "per_page": page_size, "total": len_data}}
+
+
 
 @app.post('/users', status_code=status.HTTP_201_CREATED)
 def create_user(user:User, db: Session= Depends(get_db_session)):
@@ -188,42 +205,22 @@ def del_comment(comment_id:int, db: Session= Depends(get_db_session)):
 @app.get('/users')
 def get_all_users(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
     """Getting paginated users data"""
-    db_array = db.query(DB_models.User_tbl).all()
-    data_array = [i for i in db_array]
-    resp_arr = list(get_slice(data_array, page_size))[page_num-1]
-    len_data = len(data_array)
-    total_pages = math.ceil(len_data/page_size)
-    return{"data": resp_arr, "meta": {"current": page_num, "last_page": total_pages, "per_page": page_size, "total": len_data}}
+    return get_paginated_data(model ='users', page_num = 1, page_size  = 2)
 
 @app.get('/articles')
 def get_all_articles(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
     """Getting articles users data"""
-    db_array = db.query(DB_models.Article_tbl).all()
-    data_array = [i for i in db_array]
-    resp_arr = list(get_slice(data_array, page_size))[page_num-1]
-    len_data = len(data_array)
-    total_pages = math.ceil(len_data/page_size)
-    return{"data": resp_arr, "meta": {"current": page_num, "last_page": total_pages, "per_page": page_size, "total": len_data}}
+    return get_paginated_data(model ='articles', page_num = 1, page_size  = 2)
 
 @app.get('/videos')
 def get_all_videos(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
     """Getting videos users data"""
-    db_array = db.query(DB_models.Video_tbl).all()
-    data_array = [i for i in db_array]
-    resp_arr = list(get_slice(data_array, page_size))[page_num-1]
-    len_data = len(data_array)
-    total_pages = math.ceil(len_data/page_size)
-    return{"data": resp_arr, "meta": {"current": page_num, "last_page": total_pages, "per_page": page_size, "total": len_data}}
+    return get_paginated_data(model ='videos', page_num = 1, page_size  = 2)
 
 @app.get('/comments')
 def get_all_comments(page_num: int = 1, page_size: int = 2, db: Session= Depends(get_db_session)):
     """Getting comments users data"""
-    db_array = db.query(DB_models.Comments).all()
-    data_array = [i for i in db_array]
-    resp_arr = list(get_slice(data_array, page_size))[page_num-1]
-    len_data = len(data_array)
-    total_pages = math.ceil(len_data/page_size)
-    return{"data": resp_arr, "meta": {"current": page_num, "last_page": total_pages, "per_page": page_size, "total": len_data}}
+    return get_paginated_data(model ='comments', page_num = 1, page_size  = 2)
 
 
 
